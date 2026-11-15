@@ -1,0 +1,17 @@
+# Dataset and generated results (never commit the dataset)
+data/
+experiment_outputs/
+
+# Challenge statement (third-party document, not part of the deliverable)
+*.pdf
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store

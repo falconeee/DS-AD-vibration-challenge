@@ -1,0 +1,52 @@
+abordagem,incidente,horas
+Baseline ajustado,1,4.9675
+Baseline ajustado,2,2.4505555555555554
+Baseline ajustado,3,0.03361111111111111
+Baseline ajustado,4b,3.1005555555555557
+Baseline ajustado,5a,19.105
+Baseline ajustado,5b,7.0072222222222225
+Baseline ajustado,6b,1.9341666666666666
+Baseline ajustado,9,2.983888888888889
+Baseline ajustado,10,0.9505555555555556
+Baseline ajustado,12,3.8338888888888887
+Baseline ajustado,16,25.733888888888888
+Baseline ajustado,19,2.5675
+Baseline ajustado,21,4.667222222222223
+Baseline ajustado,26,1.1675
+Baseline ajustado,28a,2.55
+Baseline ajustado,29a,3.6838888888888888
+PCA (T² + SPE),1,4.1338888888888885
+PCA (T² + SPE),3,0.03361111111111111
+PCA (T² + SPE),4b,5.933888888888889
+PCA (T² + SPE),5a,19.105
+PCA (T² + SPE),5b,10.164722222222222
+PCA (T² + SPE),6a,10.100555555555555
+PCA (T² + SPE),7b,2.9505555555555554
+PCA (T² + SPE),8,12.950555555555555
+PCA (T² + SPE),9,2.983888888888889
+PCA (T² + SPE),10,0.9505555555555556
+PCA (T² + SPE),12,3.8338888888888887
+PCA (T² + SPE),16,54.73388888888889
+PCA (T² + SPE),17,1.7508333333333332
+PCA (T² + SPE),19,2.5675
+PCA (T² + SPE),27a,5.022222222222222
+PCA (T² + SPE),28a,2.55
+PCA (T² + SPE),28b,24.905833333333334
+PCA (T² + SPE),29b,14.18388888888889
+Nível sustentado (final),1,4.1338888888888885
+Nível sustentado (final),2,1.6172222222222221
+Nível sustentado (final),3,0.03361111111111111
+Nível sustentado (final),4a,5.100555555555555
+Nível sustentado (final),4b,4.100555555555555
+Nível sustentado (final),5a,17.61
+Nível sustentado (final),5b,7.505833333333333
+Nível sustentado (final),6a,10.600555555555555
+Nível sustentado (final),6b,0.9338888888888889
+Nível sustentado (final),8,11.450555555555555
+Nível sustentado (final),9,2.6505555555555556
+Nível sustentado (final),10,0.6172222222222222
+Nível sustentado (final),16,23.733888888888888
+Nível sustentado (final),19,1.0675
+Nível sustentado (final),21,4.667222222222223
+Nível sustentado (final),28a,11.130277777777778
+Nível sustentado (final),29a,2.6841666666666666

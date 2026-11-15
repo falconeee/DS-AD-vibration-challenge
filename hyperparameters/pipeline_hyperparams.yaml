@@ -1,0 +1,9 @@
+# Anomaly pipeline hyperparameters
+
+# The pipeline stops at the first window that holds no samples, so the window must be
+# longer than the longest telemetry gap (10.1 h in this dataset). The model scores
+# only the trailing `horizon_hours` of it, so a long window costs no reaction time.
+model_window_size_hours: 12
+
+# Window step = size - overlap = 30 minutes: how often the asset is re-evaluated.
+window_overlap_hours: 11.5

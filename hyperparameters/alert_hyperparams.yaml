@@ -1,0 +1,9 @@
+# Alert engine hyperparameters
+
+# Re-alert on an ongoing event when severity reaches this multiple of the severity
+# at the last alert.
+escalation_factor: 2.0
+
+# An event is over after this many hours without an anomalous window; anything
+# abnormal after that is alerted as a new event.
+rearm_hours: 24

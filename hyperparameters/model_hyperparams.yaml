@@ -1,0 +1,14 @@
+# Anomaly model hyperparameters
+
+# Baseline: quantile of the running fit samples taken as the upper end of normal.
+baseline_quantile: 0.99
+
+# Trailing part of each pipeline window that is scored (hours).
+horizon_hours: 3
+
+# A level counts as sustained when at least this share of the horizon sits at or
+# above it (0.35 of 3 h is about one hour).
+window_anomaly_ratio: 0.35
+
+# A window is anomalous when its sustained level reaches this multiple of the baseline.
+severity_threshold: 1.5

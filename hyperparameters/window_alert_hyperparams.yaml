@@ -1,0 +1,6 @@
+# Window-count alert engine hyperparameters (classes/window_alert_engine.py,
+# alternative to the default engine; counts assume a 1-hour pipeline step)
+onset_windows: 3        # consecutive abnormal windows required to open an event
+escalation_ratio: 2.0   # re-alert when severity exceeds the last alerted level by this factor
+escalation_windows: 2   # consecutive windows above the escalated level to re-alert
+recovery_windows: 24    # consecutive normal windows required to close an event

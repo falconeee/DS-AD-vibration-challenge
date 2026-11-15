@@ -1,0 +1,20 @@
+# PCA model hyperparameters (classes/pca_model.py, alternative to the default model)
+
+# Detector: "pca" (Hotelling T2 + SPE)
+detector: pca
+
+# Window level and baseline robustness
+window_hours: 2            # trailing span of each pipeline window that is scored, and the
+                           # window length used to learn the baseline
+window_anomaly_ratio: 0.2  # fraction of a window that must be elevated for its level to rise
+min_running_samples: 4     # windows with fewer running samples are not scored
+min_log_scale: 0.1         # floor for the robust sigma of a log-level (~10% amplitude)
+fit_outlier_z: 6.0         # fit windows beyond this robust z are left out of training
+
+# Decision rule
+threshold_quantile: 0.99   # quantile of the fit window scores used as threshold
+threshold_margin: 2.0      # safety factor on that quantile
+one_sided: true            # only flag deviations towards higher vibration
+
+# PCA detector
+pca_variance: 0.9          # cumulative variance kept in the principal subspace
