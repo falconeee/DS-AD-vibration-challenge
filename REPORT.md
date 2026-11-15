@@ -30,7 +30,7 @@ Os falsos positivos caíram de 12–17 para 3, com praticamente o mesmo número 
 
 Para ativos novos, o resultado mais realista é o da última linha da tabela (F1 0,58). Os hiperparâmetros foram escolhidos olhando os mesmos 29 cenários em que são medidos, então o F1 de 0,69 é otimista.
 
-Todos os números deste relatório vêm de `uv run main.py` ou de `notebooks/detection_analysis.ipynb`. Entre parênteses, "§" indica a seção do notebook de onde o número saiu.
+Os valores das análises deste relatório vêm do notebook `notebooks/detection_analysis.ipynb`. O resultado da abordagem final também sai de `uv run main.py`.
 
 ---
 
@@ -44,13 +44,13 @@ Todos os números deste relatório vêm de `uv run main.py` ou de `notebooks/det
 
 A métrica olha **eventos**, não janelas isoladas, e isso combina com o produto. Mas ela tem pontos cegos:
 
-- **Um alerta antecipado conta como erro.** Um alerta uma hora antes do início do rótulo é FP, mesmo sendo o aviso precoce que o produto quer. Em vários cenários a vibração já está alta horas ou dias antes do rótulo (§15).
+- **Um alerta antecipado conta como erro.** Um alerta uma hora antes do início do rótulo é FP, mesmo sendo o aviso precoce que o produto quer. Em vários cenários a vibração já está alta horas ou dias antes do rótulo.
 - **Alertas repetidos dentro do rótulo não pesam.** Dez alertas no mesmo incidente valem o mesmo que um. Ou seja, o requisito 2 (não repetir alertas) não é medido.
 - **O atraso não é medido.** A função `utils.lead_time` existe, mas dá erro quando chamada: passa quatro argumentos para `overlap`, que só aceita três.
 - **Um rótulo é impossível de acertar.** O primeiro incidente do cenário 7 termina antes de começar (de 23:00 a 15:00 do mesmo dia). O máximo de incidentes encontráveis é 28 de 29.
 - **A amostra é pequena.** São 29 incidentes, e um alerta a mais ou a menos muda o F1 em cerca de 0,02.
 
-### O que olhei além do F1 (§17)
+### O que olhei além do F1
 
 | Métrica | Por que olhar | Original | Ajustado | PCA | **Final** |
 |---|---|---|---|---|---|
@@ -61,21 +61,17 @@ A métrica olha **eventos**, não janelas isoladas, e isso combina com o produto
 | Alertas por incidente encontrado | Requisito 2 (não repetir). | 1,00 | 1,12 | 1,00 | **1,06** |
 | Atraso mediano do primeiro alerta (h) | Detectar cedo é o objetivo. | 4,1 | 3,0 | 4,6 | **4,1** |
 | F1 aceitando alertas até 24 h antes do rótulo | Mostra quanto dos FP é aviso antecipado. | 0,33 | 0,65 | 0,70 | **0,73** |
-| F1 médio por cenário com incidente | Evita que poucos cenários dominem o resultado. | 0,18 | 0,53 | 0,52 | **0,59** |
-| Faixa provável do F1 (90%) | Mostra a incerteza de ter só 29 cenários. | 0,08–0,33 | 0,44–0,68 | 0,46–0,67 | **0,54–0,83** |
-
-A faixa provável vem de um *bootstrap*: refaço a conta milhares de vezes, sorteando os 29 cenários com reposição, e guardo o intervalo onde caem 90% dos resultados. Ao todo, o monitoramento soma 559 dias de dados em 29 ativos.
 
 ### Como interpreto
 
 - **A abordagem final é a melhor em quase todas as métricas.** A vantagem vem da precisão: 0,16 alarme falso por máquina por mês, contra 0,64 a 0,91 das outras.
 - **No recall, o PCA encontra um incidente a mais.** Mesmo no F2, que favorece o recall, a diferença é pequena (0,62 contra 0,60). Para ganhar esse incidente, o produto teria de aceitar quase seis vezes mais alarmes falsos. Não acho que valha.
 - **A tolerância de 24 h mostra o que a métrica oficial esconde.** Com ela, o PCA passa de 18 para 22 incidentes encontrados: muitos falsos positivos dele são, na verdade, avisos antecipados de incidentes reais. A final passa de 17 para 18, porque os falsos positivos dela não ficam perto dos rótulos.
-- **Diferenças pequenas são empate.** Com 29 cenários, diferenças de F1 abaixo de uns 0,05 não significam nada. A diferença da final é maior:
-  - sobre o baseline ajustado, a final ganha +0,13 de F1 (faixa provável de 0,00 a +0,26) e é melhor em 94% dos sorteios;
+- **Diferenças pequenas são empate.** Com 29 cenários, diferenças de F1 abaixo de uns 0,05 não significam nada. Para medir isso, refiz a conta milhares de vezes sorteando os 29 cenários com reposição (*bootstrap*) e guardei o intervalo onde caem 90% dos resultados. A diferença da final é maior:
+  - sobre o baseline ajustado, a final ganha +0,13 de F1 (intervalo de 0,00 a +0,26) e é melhor em 94% dos sorteios;
   - sobre o PCA, ganha +0,13 (de −0,05 a +0,31) e é melhor em 88% dos sorteios.
 
-  É a única diferença do estudo que chega perto de se separar do ruído. Mas a faixa ainda encosta no zero, então a conclusão honesta é "provavelmente melhor", não "comprovadamente melhor".
+  É a única diferença do estudo que chega perto de se separar do ruído. Mas o intervalo ainda encosta no zero, então a conclusão honesta é "provavelmente melhor", não "comprovadamente melhor".
 - **A estimativa honesta de desempenho é a dos cenários não usados no ajuste** (seção 4.3), não o F1 na amostra.
 
 **O que eu reportaria:** o F1 oficial, o F1 nos cenários não usados no ajuste, os falsos positivos por ativo por mês e o atraso mediano. Essas quatro métricas respondem ao que quem recebe os alertas quer saber: quanto confiar no número, quanto ruído esperar e com quanto atraso o aviso chega.
@@ -97,11 +93,11 @@ Conferi cada fraqueza nos dados, não só no código.
 
 | # | Fraqueza | O que encontrei nos dados |
 |---|---|---|
-| D1 | **Só usa velocidade.** A aceleração, onde aparecem falhas de alta frequência (rolamentos, engrenagens), é ignorada. | Acrescentar a aceleração encontra 3 incidentes a mais no baseline ajustado (§4). Na abordagem final, só a velocidade encontra 13 incidentes; velocidade e aceleração juntas encontram 17 (§16). No cenário 1, o incidente aparece só na aceleração. |
+| D1 | **Só usa velocidade.** A aceleração, onde aparecem falhas de alta frequência (rolamentos, engrenagens), é ignorada. | Acrescentar a aceleração encontra 3 incidentes a mais no baseline ajustado. Na abordagem final, só a velocidade encontra 13 incidentes; velocidade e aceleração juntas encontram 17. No cenário 1, o incidente aparece só na aceleração. |
 | D2 | **A máquina parada entra no "normal".** Média e desvio incluem as leituras com `uptime = False`, que ficam no nível de ruído do sensor. | A média cai e o desvio aumenta. No cenário 28, por exemplo, a média é 4,83 ± 4,20 mm/s com todas as leituras e 8,36 ± 1,56 só com a máquina ligada. O tempo parado vai de 0% a 74% conforme o ativo, então o limite real muda de ativo para ativo por acaso. |
-| D3 | **Olha para os dois lados.** `abs(z)` trata vibração *baixa* como anomalia, mas o requisito é vibração *alta*. | Olhar só para cima tira 3 falsos positivos sem perder nenhum incidente (§4). Em três cenários (3, 15 e 26), só desligar a máquina já ultrapassa o limite. |
+| D3 | **Olha para os dois lados.** `abs(z)` trata vibração *baixa* como anomalia, mas o requisito é vibração *alta*. | Olhar só para cima tira 3 falsos positivos sem perder nenhum incidente. Em três cenários (3, 15 e 26), só desligar a máquina já ultrapassa o limite. |
 | D4 | **Média e desvio-padrão são sensíveis a valores extremos.** | No cenário 17, uma única leitura de 316 mm/s entre 2.235 faz o desvio subir de 1,9 para 6,9 e o limite de 3 desvios subir de 10 para 25 mm/s, numa máquina que roda a cerca de 5 mm/s. |
-| D5 | **"3 desvios-padrão" supõe dados com distribuição normal (gaussiana), e eles não têm.** | Há ativos com vários regimes de operação, que ligam e desligam, ou com valores extremos frequentes. A maior leitura do treino fica de 1,3 a 43,8 desvios da média conforme o ativo (§13): "3 desvios" não quer dizer a mesma coisa em dois ativos. |
+| D5 | **"3 desvios-padrão" supõe dados com distribuição normal (gaussiana), e eles não têm.** | Há ativos com vários regimes de operação, que ligam e desligam, ou com valores extremos frequentes. A maior leitura do treino fica de 1,3 a 43,8 desvios da média conforme o ativo: "3 desvios" não quer dizer a mesma coisa em dois ativos. |
 | D6 | **Não informa a gravidade.** `PredictOutput` só diz sim ou não. | Sem saber *quão* anormal está uma janela, é impossível atender o requisito 3 (alertar de novo quando piora). |
 | D7 | Menores: `z_threshold` é inteiro (2,5 não pode ser configurado), e o desvio arredondado para três casas pode virar zero num ativo de vibração muito baixa. | |
 
@@ -113,12 +109,12 @@ Conferi cada fraqueza nos dados, não só no código.
 | A2 | **Não alerta quando piora.** | O requisito 3 não é atendido. |
 | A3 | **Não sabe quando um problema terminou.** | O requisito 2 só é atendido por acaso, porque o motor trava. |
 
-Trocar só o motor de alertas, sem mexer na detecção, já leva o F1 de 0,21 para 0,49 (§4). **A lógica de alerta pesa tanto quanto a detecção.**
+Trocar só o motor de alertas, sem mexer na detecção, já leva o F1 de 0,21 para 0,49. **A lógica de alerta pesa tanto quanto a detecção.**
 
 ### 2.3 Pipeline
 
 - **Um buraco nos dados maior que a janela encerra a análise do cenário.** A função `_windowing_ts` para na primeira janela vazia.
-  - Com as janelas de 2 h do YAML original, os cenários 5, 27 e 28 deixam de ser analisados nas últimas 128, 120 e 266 horas, e cada um perde um incidente (§1).
+  - Com as janelas de 2 h do YAML original, os cenários 5, 27 e 28 deixam de ser analisados nas últimas 128, 120 e 266 horas, e cada um perde um incidente.
   - O código do pipeline é fixo, mas o tamanho da janela é um hiperparâmetro. Basta uma janela maior que o maior buraco (10,1 h, no cenário 28).
 - **O enunciado e o código discordam sobre o motor de alertas.** O enunciado descreve um acúmulo de previsões (*buffering*) e `AlertEngine.predict(List[PredictOutput])`. O `data_pipeline.py` fixo chama o motor janela a janela, com um único `PredictOutput`. Meu motor aceita as duas formas.
 
@@ -130,7 +126,7 @@ Trocar só o motor de alertas, sem mexer na detecção, já leva o F1 de 0,21 pa
 
 ![F1 a cada mudança, do baseline à abordagem final](docs/figures/path_to_final.png)
 
-**Primeiro corrigi o baseline com o mínimo de mudanças (§4).** Mantive a regra "20% das leituras acima de k desvios" e fiz uma mudança por vez, medindo o efeito de cada uma:
+**Primeiro corrigi o baseline com o mínimo de mudanças.** Mantive a regra "20% das leituras acima de k desvios" e fiz uma mudança por vez, medindo o efeito de cada uma:
 
 1. **Troquei a trava por um motor de alertas por eventos: F1 de 0,21 para 0,49.** Esse motor abre um evento depois de 3 janelas anormais seguidas, fica em silêncio enquanto ele dura, fecha o evento depois de 24 janelas normais e alerta de novo quando a gravidade dobra.
 2. **Passei a olhar só desvios para cima:** 0,52.
@@ -145,7 +141,7 @@ Trocar só o motor de alertas, sem mexer na detecção, já leva o F1 de 0,21 pa
 
 As duas medidas viram uma gravidade, e o PCA também diz qual canal mais contribuiu para o alerta. Resultado: 18/17/11, **o mesmo F1 de 0,56** do baseline ajustado. O PCA encontra dois incidentes a mais, mas gera cinco falsos positivos a mais. As duas abordagens concordam em 85% das janelas.
 
-**Testei várias ideias que não ajudaram (§9 a §15):**
+**Testei várias ideias que não ajudaram:**
 
 - **Outras estatísticas da janela:** pico, dispersão, razão entre velocidade e aceleração, RMS, fator de crista, curtose e assimetria, tanto no PCA quanto no baseline. As que medem nível repetem o que o modelo já vê; as que medem forma não têm sinal. Os dados são valores RMS a cada ~10 min, sem a forma de onda, então curtose e fator de crista *do sinal* nem podem ser calculados.
 - **Outras formas de olhar os canais:** seis canais em vez de duas normas, escala logarítmica, mediana e MAD. Todas pioram.
@@ -156,7 +152,7 @@ As duas medidas viram uma gravidade, e o PCA também diz qual canal mais contrib
 
 Nenhuma dessas variantes ficou melhor que o baseline ajustado além do ruído do bootstrap.
 
-**Os erros mostraram o que realmente limitava as duas abordagens (§13, §15):**
+**Os erros mostraram o que realmente limitava as duas abordagens:**
 
 1. **"k desvios-padrão" não significa a mesma coisa em ativos diferentes.** Um limite escolhido para cada cenário olhando os rótulos chegaria a F1 0,80, com k variando de 2 a 20. Ou seja, o problema não era o *valor* do limite, era a *unidade* em que ele é medido.
 2. **Abrir um evento cedo demais custa em dobro.** Cinco incidentes do ajustado foram perdidos porque um alerta saiu antes do rótulo, num desvio que já existia. Cada caso gerou um falso positivo e um incidente perdido ao mesmo tempo.
@@ -178,8 +174,8 @@ Testei duas famílias:
 | | PCA (6 canais) | Normas de velocidade e aceleração (ajustado e final) |
 |---|---|---|
 | **O que enxerga** | Como os eixos variam juntos. Pega um eixo que sobe sozinho. | O nível de vibração de cada tipo de sensor. A velocidade cobre falhas de baixa frequência (desbalanceamento, desalinhamento, folga); a aceleração, as de alta frequência (rolamentos, engrenagens). |
-| **Falha em um eixo só** | ✅ Forte: um canal com o dobro da vibração é sinalizado em 69% dos casos (§16). | ❌ Fraca: a norma dilui o eixo. O mesmo teste é sinalizado em 4% dos casos pela final. |
-| **Diagnóstico** | ✅ Diz qual canal puxou o alerta; acerta o canal em cerca de 92% dos casos (§8). | ⚠️ Diz só se foi a velocidade ou a aceleração. |
+| **Falha em um eixo só** | ✅ Forte: um canal com o dobro da vibração é sinalizado em 69% dos casos. | ❌ Fraca: a norma dilui o eixo. O mesmo teste é sinalizado em 4% dos casos pela final. |
+| **Diagnóstico** | ✅ Diz qual canal puxou o alerta; acerta o canal em cerca de 92% dos casos. | ⚠️ Diz só se foi a velocidade ou a aceleração. |
 | **Alarmes falsos** | ❌ Mais sensível também a variações normais: 17 falsos positivos. Cada canal a mais é mais uma chance de alarme falso. | ✅ A norma é estável e não depende de como o sensor foi montado: 3 falsos positivos na final. |
 | **Suposições** | ❌ Supõe que a relação entre os canais é linear e que a máquina tem um só modo de operação, o que nem sempre vale. | ✅ A razão ao percentil 99 não supõe nada sobre a distribuição dos dados. ⚠️ A versão em desvios-padrão supõe, e por isso o mesmo limite não serve para todos os ativos. |
 | **Hiperparâmetros** | ❌ Muitos (variância retida, quantil, margem, piso do desvio, descarte de valores extremos, fração da janela). | ✅ Poucos e com significado físico (percentil do baseline, horizonte, fração do horizonte, limite). |
@@ -241,7 +237,7 @@ Mais duas decisões:
 
 ![O motor de alertas em perfis de gravidade sintéticos](docs/figures/engine_profiles.png)
 
-Nos seis perfis da figura, o motor final gera exatamente o número esperado de alertas (§16). Já o motor que conta janelas, usado pelo ajustado e pelo PCA, falha no perfil intermitente: um problema que liga e desliga nunca tem três janelas anormais seguidas e nunca é alertado.
+Nos seis perfis da figura, o motor final gera exatamente o número esperado de alertas. Já o motor que conta janelas, usado pelo ajustado e pelo PCA, falha no perfil intermitente: um problema que liga e desliga nunca tem três janelas anormais seguidas e nunca é alertado.
 
 ### 3.5 Pipeline (`hyperparameters/pipeline_hyperparams.yaml`)
 
@@ -289,7 +285,7 @@ Cada valor partiu de um argumento físico (as tabelas acima) e depois foi confer
   - A de 6 h parece melhor (17/1/12, F1 0,72), mas é um efeito colateral: com 6 h a análise para no buraco de 10,1 h do cenário 28, os últimos 10 dias desse ativo deixam de ser analisados, e os dois falsos positivos somem junto.
   - Um passo de 1 h piora o resultado (16/7/13).
 
-**Em cenários não usados no ajuste:** escolhendo o limite, a fração do horizonte, o horizonte e o fator de piora sem olhar o cenário avaliado, a soma das 29 rodadas dá **14/5/15, F1 0,58**. A configuração do YAML foi a escolhida em 25 das 29 rodadas. Na mesma avaliação, o baseline ajustado cai de 0,56 para 0,47 (§13).
+**Em cenários não usados no ajuste:** escolhendo o limite, a fração do horizonte, o horizonte e o fator de piora sem olhar o cenário avaliado, a soma das 29 rodadas dá **14/5/15, F1 0,58**. A configuração do YAML foi a escolhida em 25 das 29 rodadas. Na mesma avaliação, o baseline ajustado cai de 0,56 para 0,47.
 
 ### 4.4 Análise de erros
 
@@ -326,7 +322,7 @@ Cada valor partiu de um argumento físico (as tabelas acima) e depois foi confer
 1. **Recuperar as falhas de um eixo sem trazer o ruído de volta.** Usar o PCA (ou uma gravidade por eixo) como segundo sinal, com um limite mais alto, ao lado da final. Se a forma de onda estiver disponível, acrescentar energia por faixa de frequência, fator de crista e curtose, que separam falha de rolamento de mudança de processo muito melhor que o RMS.
 2. **Um baseline por modo de operação.** Muitos ativos têm dois ou três modos. Um baseline para cada um (agrupando os dados de treino, ou usando carga ou rotação, se existirem) tornaria visíveis as subidas de 16% a 38% dos cenários 13, 14 e 17.
 3. **Dois níveis de alerta.** Um aviso de baixa prioridade a partir de ~1,2× sustentado por muitas horas, e o alerta atual em 1,5×. Isso pegaria as mudanças pequenas da seção 4.4 sem aumentar os alarmes principais.
-4. **Um baseline que se atualiza.** O notebook mostrou que uma referência com os últimos 14 dias, com um piso, encontra incidentes onde o normal mudou desde o treino (§14). Faltam mais dados para validar.
+4. **Um baseline que se atualiza.** O notebook mostrou que uma referência com os últimos 14 dias, com um piso, encontra incidentes onde o normal mudou desde o treino. Faltam mais dados para validar.
 5. **Piora medida por norma**, guardando a gravidade do último alerta separadamente para velocidade e aceleração.
 6. **Avaliação.** Corrigir o rótulo do cenário 7, aceitar alertas pouco antes do início do rótulo, medir o atraso, e revisar com quem rotulou os dados as subidas sem rótulo (cenário 28). Com mais ativos rotulados, daria para ter um conjunto de teste separado e limites por tipo de ativo.
 7. **Robustez do pipeline**, se esse código puder ser alterado: pular janelas vazias em vez de parar, montar as janelas de forma incremental em vez de varrer a série inteira a cada janela, e guardar o estado do motor entre reinícios.
@@ -335,10 +331,24 @@ Cada valor partiu de um argumento físico (as tabelas acima) e depois foi confer
 
 ## 6. Como reproduzir e conformidade com o enunciado
 
+**Com `uv`**, que cria o ambiente e instala as dependências sozinho:
+
 ```bash
 uv run main.py --no-plot                                # métricas em experiment_outputs/
 uv run jupyter lab notebooks/detection_analysis.ipynb   # análise completa (~10 min para executar tudo)
 ```
+
+**Com `python`**, dentro de um ambiente virtual (Python 3.10 ou mais novo):
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install numpy pandas pyyaml plotly pyarrow pydantic   # dependências do main.py
+pip install jupyterlab ipykernel                          # só para o notebook
+python main.py --no-plot                                  # métricas em experiment_outputs/
+jupyter lab notebooks/detection_analysis.ipynb            # análise completa
+```
+
+Se o ambiente já foi criado com `uv sync`, basta `source .venv/bin/activate` e depois `python main.py`. Rodar `python main.py` no Python do sistema, sem essas dependências, falha com `No module named 'yaml'`.
 
 | Arquivo | O que mudou |
 |---|---|
@@ -347,7 +357,7 @@ uv run jupyter lab notebooks/detection_analysis.ipynb   # análise completa (~10
 | `classes/interface.py` | `Weights` e `ModelParams` reescritos para a abordagem final. `PredictOutput` e `AlertDecision` ganharam campos novos, todos com valor padrão. Entraram `AlertParams` e os parâmetros das alternativas (`PcaWeights`, `PcaModelParams`, `WindowAlertParams`). `DataPoint`, `TimeSeries`, `PipelineParams` e `TrueIncident` não mudaram. |
 | `classes/pca_model.py`, `classes/window_alert_engine.py` | Novos: o PCA e o motor que conta janelas, mantidos como alternativas usadas pelo notebook. A execução padrão (`main.py`) não os usa. |
 | `hyperparameters/*.yaml` | Valores novos para modelo, alertas e pipeline; `pca_hyperparams.yaml` e `window_alert_hyperparams.yaml` para as alternativas. |
-| `notebooks/detection_analysis.ipynb` | Toda a análise; a seção 16 trata da abordagem final e a 17, das métricas. |
+| `notebooks/detection_analysis.ipynb` | Toda a análise, incluindo a abordagem final e as métricas. |
 | `docs/figures/` | As figuras deste relatório. |
 
 **Conformidade com o enunciado:**
