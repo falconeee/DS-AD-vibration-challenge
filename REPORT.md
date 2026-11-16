@@ -174,13 +174,13 @@ Testei duas famílias:
 | | PCA (6 canais) | Normas de velocidade e aceleração (ajustado e final) |
 |---|---|---|
 | **O que enxerga** | Como os eixos variam juntos. Pega um eixo que sobe sozinho. | O nível de vibração de cada tipo de sensor. A velocidade cobre falhas de baixa frequência (desbalanceamento, desalinhamento, folga); a aceleração, as de alta frequência (rolamentos, engrenagens). |
-| **Falha em um eixo só** | ✅ Forte: um canal com o dobro da vibração é sinalizado em 69% dos casos. | ❌ Fraca: a norma dilui o eixo. O mesmo teste é sinalizado em 4% dos casos pela final. |
-| **Diagnóstico** | ✅ Diz qual canal puxou o alerta; acerta o canal em cerca de 92% dos casos. | ⚠️ Diz só se foi a velocidade ou a aceleração. |
-| **Alarmes falsos** | ❌ Mais sensível também a variações normais: 17 falsos positivos. Cada canal a mais é mais uma chance de alarme falso. | ✅ A norma é estável e não depende de como o sensor foi montado: 3 falsos positivos na final. |
-| **Suposições** | ❌ Supõe que a relação entre os canais é linear e que a máquina tem um só modo de operação, o que nem sempre vale. | ✅ A razão ao percentil 99 não supõe nada sobre a distribuição dos dados. ⚠️ A versão em desvios-padrão supõe, e por isso o mesmo limite não serve para todos os ativos. |
-| **Hiperparâmetros** | ❌ Muitos (variância retida, quantil, margem, piso do desvio, descarte de valores extremos, fração da janela). | ✅ Poucos e com significado físico (percentil do baseline, horizonte, fração do horizonte, limite). |
-| **Explicação para o analista** | ❌ "T² + SPE = 1,8× o limite" não diz nada a quem opera a máquina. | ✅ "A aceleração está 1,6× acima do topo do normal desta máquina" é a linguagem que analistas de vibração já usam. |
-| **Direção** | ⚠️ Olha para os dois lados; precisa de uma regra extra para olhar só para cima. | ✅ Olha só para cima, naturalmente. |
+| **Falha em um eixo só** | Forte: um canal com o dobro da vibração é sinalizado em 69% dos casos. | Fraca: a norma dilui o eixo. O mesmo teste é sinalizado em 4% dos casos pela final. |
+| **Diagnóstico** | Diz qual canal puxou o alerta; acerta o canal em cerca de 92% dos casos. | Diz só se foi a velocidade ou a aceleração. |
+| **Alarmes falsos** | Mais sensível também a variações normais: 17 falsos positivos. Cada canal a mais é mais uma chance de alarme falso. | A norma é estável e não depende de como o sensor foi montado: 3 falsos positivos na final. |
+| **Suposições** | Supõe que a relação entre os canais é linear e que a máquina tem um só modo de operação, o que nem sempre vale. | A razão ao percentil 99 não supõe nada sobre a distribuição dos dados. Já a versão em desvios-padrão supõe dados com distribuição normal, e por isso o mesmo limite não serve para todos os ativos. |
+| **Hiperparâmetros** | Muitos (variância retida, quantil, margem, piso do desvio, descarte de valores extremos, fração da janela). | Poucos e com significado físico (percentil do baseline, horizonte, fração do horizonte, limite). |
+| **Explicação para o analista** | "T² + SPE = 1,8× o limite" não diz nada a quem opera a máquina. | "A aceleração está 1,6× acima do topo do normal desta máquina" é a linguagem que analistas de vibração já usam. |
+| **Direção** | Olha para os dois lados; precisa de uma regra extra para olhar só para cima. | Olha só para cima, naturalmente. |
 
 **Por que escolhi as normas como padrão.** A maioria dos 29 incidentes rotulados é uma mudança de nível que move a norma inteira. Nesse cenário, a vantagem do PCA (falhas de um eixo) rende um incidente a mais, e o custo dele (ruído) rende 14 alarmes falsos a mais. A final também é mais fácil de explicar, ajustar e manter.
 
